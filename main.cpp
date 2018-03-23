@@ -14,6 +14,8 @@ int main()
 	
 	int y, x;
 	initscr();
+	start_color();
+	curs_set(0);
 	getmaxyx(stdscr, y, x);
 	std::srand((unsigned int)time(NULL));
 

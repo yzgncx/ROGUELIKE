@@ -49,6 +49,7 @@ unsigned short GraphObject::getType() const { return m_descriptor.type; }
 Actor::Actor(short type, short sub, short x, short y, Game* g, int h, int a ) : GraphObject(type, sub, x, y, g)
 {
 	m_alive = true;
+	m_health_max = h;
 	m_health = h;
 	m_natural_armor = a;
 }
@@ -56,14 +57,23 @@ Actor::Actor(short type, short sub, short x, short y, Game* g, int h, int a ) : 
 int Actor::getNaturalArmor() { return m_natural_armor; }
 void Actor::setNaturalArmor(int n) { m_natural_armor = n; }
 void Actor::modNaturalArmor(int n) { m_natural_armor += n; }
+
 int Actor::getHealth() { return m_health; }
 void Actor::setHealth(int n) { m_health = n; }
+int Actor::getHealthMax() { return m_health_max; }
+void Actor::setHealthMax(int n) { m_health_max = n; }
 void Actor::modHealth(int n) { m_health += n; }
+
 
 //==================================//
 //		DYNAMICS FUNCTIONS	    	//
 //==================================//
-Dynamics::Dynamics(short type, short sub, short x, short y, Game* g, int h, int a) : Actor(type, sub, x, y, g, h, a) {}
+Dynamics::Dynamics(short type, short sub, short x, short y, Game* g,
+		   int h, int m, int a) : Actor(type, sub, x, y, g, h, a)
+{
+  m_mana = m;
+  m_mana_max = m;
+}
 
 void Dynamics::performaction() {}
 
@@ -86,27 +96,37 @@ void Dynamics::getstats(std::vector<int> &v)
 }
 
 
+int Dynamics::getMana() { return m_mana; }
+void Dynamics::setMana(int n) { m_mana = n; }
+int Dynamics::getManaMax() { return m_mana_max; }
+void Dynamics::setManaMax(int n) { m_mana_max = n; }
+
 
 
 //==================================//
 //		  PLAYER FUNCTIONS	    	//
 //==================================//
-Player::Player(unsigned short weight, unsigned short height, std::string name, Game* g,
-	short sub, unsigned short x, unsigned short y) : Dynamics(PLAYER, sub, x, y, g)
+Player::Player(unsigned short weight, unsigned short height,
+	       unsigned short level, int health, int mana,
+	       std::string name, Game* g, short sub, unsigned short x, unsigned short y)
+  : Dynamics(PLAYER, sub, x, y, g, health, 10, 0)
 {
+        m_level = level;
 	m_weight = weight;
 	m_height = height;
 	m_name = name;
 }
 
-Player::Player(unsigned short wt, unsigned short ht, std::string n, Game* g) : Dynamics(PLAYER, 0, OOB, OOB, g) 
+Player::Player(unsigned short wt, unsigned short ht, unsigned short lv, std::string n, Game* g) : Dynamics(PLAYER, 0, OOB, OOB, g) 
 {
+        m_level = lv;
 	m_weight = wt;
 	m_height = ht;
 	m_name = n;
 }
 
-Player::Player(Player &rhs) : Dynamics(PLAYER, rhs.m_descriptor.sub, rhs.m_coord.x, rhs.m_coord.y, rhs.m_Game)
+Player::Player(Player &rhs)
+  : Dynamics(PLAYER, rhs.m_descriptor.sub, rhs.m_coord.x, rhs.m_coord.y, rhs.m_Game)
 {}
 
 Player::~Player()
@@ -132,6 +152,10 @@ void Player::settitle(std::string title) { m_title = title; }
 
 std::string Player::gettitle() const { return m_title; }
 
+void Player::setlevel(int level) { m_level = level; }
+
+int Player::getlevel() const { return m_level; }
+
 void Player::setheight(int height) { m_height = height; }
 
 int Player::getheight() const { return m_height; }
@@ -143,7 +167,8 @@ int Player::getweight() const { return m_weight; }
 //==================================//
 //		  MOB	FUNCTIONS	    	//
 //==================================//
-Mob::Mob(short sub, short x, short y, Game* g, int h, int a) : Dynamics(MOB,sub,x,y,g,h,a)
+Mob::Mob(short sub, short x, short y, Game* g, int h, int m, int a)
+  : Dynamics(MOB,sub,x,y,g,h,m,a)
 {
 	switch (sub)
 	{

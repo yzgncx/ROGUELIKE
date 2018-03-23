@@ -117,12 +117,20 @@ void Game::newGame()
 	weight.~SliderMenu();
 	clear();
 	refresh();
-
-	m_Player = new Player(p_weight, p_height, p_name, this);
+	
+	m_Player = new Player(p_weight, p_height, 1, p_name, this);
 	std::vector<Attribute> statset;
+	// TODO: this is bad form; generatestats
+	// should not take control of the window. 
 	generatestats(stdscr, 3, 3, statset);
 	m_Player->fillstats(statset);
 
+	m_Player->setHealth(statset[(int)(attributes::CONSTITUTION)].getBase());
+	m_Player->setHealthMax(statset[(int)(attributes::CONSTITUTION)].getBase());
+
+	m_Player->setMana(statset[(int)(attributes::WISDOM)].getBase());
+	m_Player->setManaMax(statset[(int)(attributes::WISDOM)].getBase());
+	
 	std::vector<int> stats;
 	m_Player->getstats(stats);
 
@@ -130,7 +138,8 @@ void Game::newGame()
 	{
 		for (std::vector<int>::iterator it = stats.begin(); it != stats.end(); it++)
 		{	
-			outFile << to_string(*it).c_str() << endl;	//lines 4-10 are for stat attributes, in the standard order.
+			outFile << to_string(*it).c_str() << endl;
+			//lines 4-10 are for stat attributes, in the standard order.
 		}
 	}
 	outFile.close();

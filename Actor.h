@@ -36,31 +36,47 @@ public:
 	int getNaturalArmor();
 	void setNaturalArmor(int n);
 	void modNaturalArmor(int n);
+
 	int getHealth();
 	void setHealth(int n);
 	void modHealth(int n);
+	int getHealthMax();
+	void setHealthMax(int n);	
+	
 private:
 	bool m_alive;
 	int m_natural_armor;
+
+	unsigned short m_health_max;
 	int m_health;
 };
 
 class Dynamics : public Actor
 {
 public:
-	Dynamics(short type, short sub, short x, short y, Game* g, int h = 1, int a = 0);
+  Dynamics(short type, short sub, short x, short y, Game* g, int h = 1, int m = 0, int a = 0);
 	virtual void performaction();
 	int fillstats(std::vector<Attribute> statset);
 	void getstats(std::vector<int> &v);
+
+	int getMana();
+	void setMana(int n);
+	int getManaMax();
+	void setManaMax(int n);
+
 private:
 	std::vector<Attribute> m_statset;
+	unsigned short m_mana_max;
+	unsigned short m_mana;
 };
 
 class Player : public Dynamics
 {
 public:
-	Player(unsigned short weight, unsigned short height, std::string name, Game* g, short sub, unsigned short x, unsigned short y);
-	Player(unsigned short wt, unsigned short ht, std::string n, Game* g);
+        Player(unsigned short weight, unsigned short height,
+	       unsigned short level, int health, int mana,
+	       std::string name, Game* g, short sub, unsigned short x, unsigned short y);
+	Player(unsigned short wt, unsigned short ht, unsigned short lv, std::string n, Game* g);
 	Player(Player &rhs);
 	~Player();
 
@@ -70,6 +86,9 @@ public:
 	void settitle(std::string title);
 	std::string gettitle() const;
 
+	void setlevel(int level);
+	int getlevel() const;
+	
 	void setheight(int height);
 	int getheight() const;
 	void setweight(int weight);
@@ -82,12 +101,14 @@ private:
 	unsigned short m_height;
 	unsigned short m_weight;
 
+	unsigned short m_level;
+	
 };
 
 class Mob : public Dynamics
 {
  public:
-  Mob(short sub, short x, short y, Game* g, int h, int a);
+  Mob(short sub, short x, short y, Game* g, int h, int m, int a);
 };
 
 class Statics : public Actor

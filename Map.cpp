@@ -51,7 +51,7 @@ Map::Map(Game* g) : m_Game(g)
 	  //	case ITEM:
 	  //		break;
 	case MOB:
-	  tmp = new Mob(sub, x, y, g, 1, 0);
+	  tmp = new Mob(sub, x, y, g, 1, 0, 0);
 	  m_go.insert(std::pair<short,short>(x,y),tmp);
 	  break;
 	case TERRAIN:
