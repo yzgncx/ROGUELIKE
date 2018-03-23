@@ -1,4 +1,5 @@
-#include  <ncurses.h>
+#include <ncursesw/curses.h>
+#include <ncurses.h>
 #include "Game.h"
 #include "GameWindow.h"
 
@@ -11,7 +12,8 @@
 
 int main()
 {
-	
+        setlocale(LC_CTYPE, "");
+  
 	int y, x;
 	initscr();
 	start_color();

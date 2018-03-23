@@ -41,6 +41,13 @@ enum class attributes
 	CHARISMA = 5
 };
 
+enum class directions
+{
+        N = 0,
+	W = 1,
+	S = 2,
+	E = 3  
+};
 
 //=======================//
 //    exception codes    //

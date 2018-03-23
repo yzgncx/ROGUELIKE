@@ -18,7 +18,7 @@ public:
 
 	void runWindow();
 	void updateDisplay();
-	void updatePlayer();
+	void handleInput(char c);
 	void updateEntities();
 	bool canMove(char c);
 private:

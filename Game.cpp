@@ -23,10 +23,13 @@ void Game::newGame()
 	char p_name[100];
 	ofstream outFile;
 
-	bool nameTripwire = false;		//to get text to line up. surely there's a better way.
+	//to get text to line up. surely there's a better way
+	bool nameTripwire = false;
 	while (checkName(filename) != 0) {
 		mvprintw(8, 1, "PRESS ENTER TO CONTINUE");
-		mvprintw(nameTripwire, 0, " What is your name? : ");	//nameT.. == 0 if false, 1 if true
+
+		//nameT.. == 0 if false, 1 if true
+		mvprintw(nameTripwire, 0, " What is your name? : ");
 		refresh();
 		getnstr(p_name, sizeof(p_name) - 1);
 		

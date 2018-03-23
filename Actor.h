@@ -13,20 +13,31 @@ public:
 	GraphObject(short type, short sub, short x, short y, Game* g);
 	unsigned char getAvatar() const;
 	unsigned short getType() const;
+
+	unsigned char getAttributes() const;
+	void setAttributes(unsigned char attrs);
+	
 	void getXY(short &x, short &y);
 	void setXY(short x, short y);
 	bool isPenetrable();
+
+	virtual void performAction();
+
 protected:
 	Game* m_Game;
 
+	unsigned char m_attributes;
 	unsigned char m_avatar;
+	bool m_penetrable;
+	
 	struct {
 		short x, y;
 	} m_coord;
+	
 	struct {
 		short type, sub;
 	} m_descriptor;
-	bool m_penetrable;
+	
 };
 
 class Actor : public GraphObject
@@ -42,7 +53,8 @@ public:
 	void modHealth(int n);
 	int getHealthMax();
 	void setHealthMax(int n);	
-	
+
+	virtual void performAction();
 private:
 	bool m_alive;
 	int m_natural_armor;
@@ -63,11 +75,16 @@ public:
 	void setMana(int n);
 	int getManaMax();
 	void setManaMax(int n);
-
+	
+	directions getFacing();
+	void setFacing(directions d);
+	
 private:
 	std::vector<Attribute> m_statset;
 	unsigned short m_mana_max;
 	unsigned short m_mana;
+
+	directions m_facing;
 };
 
 class Player : public Dynamics
@@ -94,15 +111,18 @@ public:
 	void setweight(int weight);
 	int getweight() const;
 
+	//std::vector<Actor*> getInteractable() const;
+
 private:
 	std::string m_name;
 	std::string m_title;
-
+	
 	unsigned short m_height;
 	unsigned short m_weight;
 
 	unsigned short m_level;
-	
+
+	std::vector<Actor*> m_interactable;
 };
 
 class Mob : public Dynamics

@@ -9,7 +9,8 @@ GraphObject::GraphObject( short type, short sub, short x, short y, Game* g) : m_
 	m_descriptor.type = type;
 	m_descriptor.sub = sub;
 	m_penetrable = true;
-
+	m_attributes = 0;
+	
 	switch (type)
 	{
 	case 0:
@@ -41,10 +42,21 @@ bool GraphObject::isPenetrable() { return m_penetrable; }
 
 unsigned char GraphObject::getAvatar() const { return m_avatar; }
 
+unsigned char GraphObject::getAttributes() const { return m_attributes; }
+
+void GraphObject::setAttributes(unsigned char attrs) { m_attributes = attrs; }
+
 unsigned short GraphObject::getType() const { return m_descriptor.type; }
 
+// the map has a collection of graph objects, but no separate collection of actors
+//
+// For now, the GraphObject class has a perform_action method.  This will likely change
+// as I don't think it's quite apptopriate.
+//
+void GraphObject::performAction() { return; }
+
 //==================================//
-//		ACTOR	 FUNCTIONS	    	//
+//	   ACTOR	 FUNCTIONS	    	//
 //==================================//
 Actor::Actor(short type, short sub, short x, short y, Game* g, int h, int a ) : GraphObject(type, sub, x, y, g)
 {
@@ -64,6 +76,7 @@ int Actor::getHealthMax() { return m_health_max; }
 void Actor::setHealthMax(int n) { m_health_max = n; }
 void Actor::modHealth(int n) { m_health += n; }
 
+void Actor::performAction() { return; }
 
 //==================================//
 //		DYNAMICS FUNCTIONS	    	//
@@ -101,10 +114,12 @@ void Dynamics::setMana(int n) { m_mana = n; }
 int Dynamics::getManaMax() { return m_mana_max; }
 void Dynamics::setManaMax(int n) { m_mana_max = n; }
 
+directions Dynamics::getFacing() { return m_facing; } 
+void Dynamics::setFacing(directions d) { m_facing = d; }
 
 
 //==================================//
-//		  PLAYER FUNCTIONS	    	//
+//		  PLAYER FUNCTIONS  //
 //==================================//
 Player::Player(unsigned short weight, unsigned short height,
 	       unsigned short level, int health, int mana,
@@ -164,8 +179,11 @@ void Player::setweight(int weight) { m_weight = weight; }
 
 int Player::getweight() const { return m_weight; }
 
+//std::vector<Actor*> Player::getInteractable() const { return m_interactable; }
+
+
 //==================================//
-//		  MOB	FUNCTIONS	    	//
+//  	     MOB FUNCTIONS          //
 //==================================//
 Mob::Mob(short sub, short x, short y, Game* g, int h, int m, int a)
   : Dynamics(MOB,sub,x,y,g,h,m,a)
