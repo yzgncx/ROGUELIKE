@@ -48,7 +48,7 @@ private:
 class Dynamics : public Actor
 {
 public:
-	Dynamics::Dynamics(short type, short sub, short x, short y, Game* g, int h = 1, int a = 0);
+	Dynamics(short type, short sub, short x, short y, Game* g, int h = 1, int a = 0);
 	virtual void performaction();
 	int fillstats(std::vector<Attribute> statset);
 	void getstats(std::vector<int> &v);
@@ -86,18 +86,20 @@ private:
 
 class Mob : public Dynamics
 {
+ public:
+  Mob(short sub, short x, short y, Game* g, int h, int a);
 };
 
 class Statics : public Actor
 {
-public:
-	Statics(short type, short sub, short x, short y, Game* g, int h, int a);
+ public:
+  Statics(short type, short sub, short x, short y, Game* g, int h, int a);
 };
 
 class Terrain : public Statics
 {
-public:
-	Terrain(short sub, short x, short y, Game* g, int h, int a);
+ public:
+  Terrain(short sub, short x, short y, Game* g, int h, int a);
 };
 
 class Item : public Statics

@@ -43,7 +43,7 @@ void Game::newGame()
 		
 		switch (checkName(filename)) {		// 0 == good name // 1 == too long // 2 == no name
 		case 0:
-			path = "save\\";
+			path = "save/";
 			path.append(filename.c_str());
 			m_filename = filename;
 			outFile.open(path);				// creates file with name filename
@@ -91,7 +91,7 @@ void Game::newGame()
 		break;
 	}
 	
-	gender.~ScrollMenu();
+	//	gender.~ScrollMenu();
 	clear();
 	refresh();
 
@@ -162,7 +162,7 @@ void Game::generatestats(WINDOW* parent, int x_offset, int y_offset, std::vector
 
 void Game::loadGame() //will need filepath at some point
 {
-
+  
 }
 
 int Game::checkName(std::string name)

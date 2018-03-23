@@ -143,31 +143,39 @@ int Player::getweight() const { return m_weight; }
 //==================================//
 //		  MOB	FUNCTIONS	    	//
 //==================================//
-//
-//
-//
-//
+Mob::Mob(short sub, short x, short y, Game* g, int h, int a) : Dynamics(MOB,sub,x,y,g,h,a)
+{
+	switch (sub)
+	{
+	case 0: //temporary
+		m_avatar = 0x63;
+		m_penetrable = false;
+	default:
+		break;
+	}
+}
 
 
 //==================================//
 //		 STATICS FUNCTIONS	    	//
 //==================================//
 
-Statics::Statics(short type, short sub, short x, short y, Game* g, int h, int a) : Actor(type, sub, x, y, g, h, a) {}
+Statics::Statics(short type, short sub, short x, short y, Game* g, int h, int a) : Actor(type, sub, x, y, g, h, a)
+{
+}
 
 
 //==================================//
 //		 TERRAIN FUNCTIONS	    	//
 //==================================//
 
-Terrain::Terrain(short sub, short x, short y, Game* g, int h, int a) : Statics(TERRAIN, sub, x, y, g, h, a)
+Terrain::Terrain(short sub, short x, short y, Game* g, int h, int a) : Statics(TERRAIN,sub,x,y,g,h,a)
 {
-	switch (sub)
-	{
-	case 0: //temporary
-		m_avatar = 0xAB;
-		m_penetrable = false;
-	default:
-		break;
-	}
+  switch (sub) {
+    case 0: //temporary
+      m_avatar = 0x77;
+      m_penetrable = false;
+    default:
+      break;
+    }
 }

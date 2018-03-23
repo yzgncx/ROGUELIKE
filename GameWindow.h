@@ -3,10 +3,12 @@
 
 #include <vector>
 #include <fstream>
-#include "curses.h"
+#include <ncurses.h>
 #include "globals.h"
+#include "Actor.h"
 #include "Game.h"
 #include "Map.h"
+
 
 class AdventureWindow
 {
@@ -15,6 +17,8 @@ public:
 	~AdventureWindow();
 
 	void runWindow();
+	void updatePlayer();
+	void updateEntities();
 	bool canMove(char c);
 private:
 	WINDOW* m_display;

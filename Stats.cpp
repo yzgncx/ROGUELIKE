@@ -137,14 +137,14 @@ void Stats::rollStats_houseRules(WINDOW* parent, int x_offset, int y_offset, std
 		}
 		touchwin(subdisplay);
 		wrefresh(subdisplay);
-		switch (rerollValid)
+		if (rerollValid)
 		{
-		case true:
 			mvwprintw(display, 10, 3, "PRESS ENTER TO REROLL ");
 			wattron(display, A_BOLD); wprintw(display, "1"); wattroff(display, A_BOLD); wprintw(display, "S ");
 			wrefresh(display);
 			break;
-		case false:
+		} else
+		{
 			mvwprintw(display, 10, 9, "PRESS ENTER TO");
 			mvwprintw(display, 11, 5, "ELIMINATE LOWEST ROLLS");
 			wrefresh(display);
@@ -258,7 +258,7 @@ void Stats::rollStats_houseRules(WINDOW* parent, int x_offset, int y_offset, std
 		applied_map[attr_map[i]] = results[i];
 	applied_map.swap(result);
 
-	apply_rolls.~A2BMenu();
+	//	apply_rolls.~A2BMenu();
 	clear();
 }
 // 4d6. if 4*1, 21;

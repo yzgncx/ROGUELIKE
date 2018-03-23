@@ -3,7 +3,7 @@
 
 #include "Attribute.h"
 #include "globals.h"
-#include "curses.h"
+#include <ncurses.h>
 #include "Menu.h"
 #include <vector>
 

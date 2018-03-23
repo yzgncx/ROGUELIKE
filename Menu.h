@@ -1,4 +1,3 @@
-
 #ifndef MENU_H
 #define MENU_H
 
@@ -6,7 +5,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
-#include "curses.h"
+#include <ncurses.h>
 #include "globals.h"
 #include <chrono> // for sleep cycles in rand
 #include <thread> // ditto
@@ -67,7 +66,9 @@ class A2BMenu
 {
 public:
 
-	A2BMenu(WINDOW* parent, std::vector<std::string> setA, std::string setA_header, std::vector<std::string> setB, std::string setB_header, std::vector<int> &result, int x_offset, int y_offset);
+	A2BMenu(WINDOW* parent, std::vector<std::string> setA, std::string setA_header,
+		                std::vector<std::string> setB, std::string setB_header,
+		                std::vector<int> &result, int x_offset, int y_offset);
 	~A2BMenu();
 	virtual int select();
 	virtual int select(bool rand);
@@ -93,10 +94,12 @@ private:
 	std::string m_setB_header;
 	std::vector<setAItem> m_setA;
 	std::vector<setBItem> m_setB;
+	std::string m_space;
+	size_t m_width;
 	size_t m_setA_size;
 	size_t m_setB_size;
-	unsigned m_longest_in_setA;
-	unsigned m_longest_in_setB;
+	size_t m_longest_in_setA;
+	size_t m_longest_in_setB;
 };
 
 

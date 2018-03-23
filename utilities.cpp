@@ -1,19 +1,16 @@
 #include "globals.h"
 #include <cstdlib>
 
-int NumDigits(int x) //thanks brad.
+
+int NumDigits(int x)
 {
-	x = abs(x);
-	return (x < 10 ? 1 :
-		(x < 100 ? 2 :
-			(x < 1000 ? 3 :
-				(x < 10000 ? 4 :
-					(x < 100000 ? 5 :
-						(x < 1000000 ? 6 :
-							(x < 10000000 ? 7 :
-								(x < 100000000 ? 8 :
-									(x < 1000000000 ? 9 :
-										10)))))))));
+	int result = (x < 0) ? 1 : 0;
+	while (x != 0)
+	{
+		x /= 10;
+		result += 1;
+	}
+	return result;
 }
 
 int FindSmallest(std::vector<int> vector)		//return index of (last) smallest item
@@ -66,6 +63,5 @@ int RandNTHBetween(int low, int high, int mod)
 	{
 		throw BAD_RANGE;
 	}
-	return ((rand() % (high - low)) + low) / mod;
+	return ((rand() % (high - low)) + low) / mod; 
 }
-

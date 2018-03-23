@@ -8,7 +8,7 @@
 #include "Menu.h"
 #include "Actor.h"
 #include "Stats.h"
-#include "curses.h"
+#include <ncurses.h>
 #include "globals.h"
 
 class Game
@@ -18,7 +18,7 @@ public:
 	~Game();
 
 	void newGame();
-	void Game::generatestats(WINDOW* parent, int x_offset, int y_offset, std::vector<Attribute> &statset);
+	void generatestats(WINDOW* parent, int x_offset, int y_offset, std::vector<Attribute> &statset);
 	void loadGame();
 	int checkName(std::string name);
 
