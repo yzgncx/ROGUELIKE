@@ -172,8 +172,8 @@ Mob::Mob(short sub, short x, short y, Game* g, int h, int m, int a)
 {
 	switch (sub)
 	{
-	case 0: //temporary
-		m_avatar = 0x63;
+	case int(mobs::DUMMY):
+		m_avatar = 'd';
 		m_penetrable = false;
 	default:
 		break;

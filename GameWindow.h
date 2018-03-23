@@ -17,6 +17,7 @@ public:
 	~AdventureWindow();
 
 	void runWindow();
+	void updateDisplay();
 	void updatePlayer();
 	void updateEntities();
 	bool canMove(char c);

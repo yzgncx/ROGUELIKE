@@ -23,7 +23,13 @@ const char PLAYER = '\1';
 const char ITEM = '\2';
 const char MOB = '\3';
 const char TERRAIN = '\4';
- 
+
+
+enum class mobs
+{
+        DUMMY = 0,
+        CHICKEN = 1
+};
 
 enum class attributes 
 {
