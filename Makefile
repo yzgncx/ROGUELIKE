@@ -1,8 +1,8 @@
 CC=g++
 
-CFLAGS=-std=c++11 -c 
+CFLAGS= -c -std=c++11 
 
-LDFLAGS=-lncurses -lmenu
+LDFLAGS=-lncursesw -lmenu
 
 EXECUTABLE=game
 

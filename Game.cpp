@@ -13,142 +13,139 @@ Game::~Game()
 
 void Game::newGame()
 {
-	initscr();
+    //
+    //TODO: intro (using same name overwrites previous save file)
+    //
+    
+    string path, filename;
+    char p_name[100];
+    ofstream outFile;
+    
+    //to get text to line up. surely there's a better way
+    bool nameTripwire = false;
+    echo();
+    curs_set(1);
+    while (checkName(filename) != 0) {
+        mvprintw(8, 1, "PRESS ENTER TO CONTINUE");
 
-	//
-	//TODO: intro (using same name overwrites previous save file)
-	//
-
-	string path, filename;
-	char p_name[100];
-	ofstream outFile;
-
-	//to get text to line up. surely there's a better way
-	bool nameTripwire = false;
-	while (checkName(filename) != 0) {
-		mvprintw(8, 1, "PRESS ENTER TO CONTINUE");
-
-		//nameT.. == 0 if false, 1 if true
-		mvprintw(nameTripwire, 0, " What is your name? : ");
-		refresh();
-		getnstr(p_name, sizeof(p_name) - 1);
-		
-		filename = p_name;
-		size_t s = filename.size();
-			for (size_t i = 0; i < s; i++)
-			{	//illegal characters in filename replaced with '_'
-				if (filename[i] == '\\' || filename[i] == '/' || filename[i] == ':'
-					|| filename[i] == '*' || filename[i] == '?' || filename[i] == '"'
-					|| filename[i] == '<' || filename[i] == '>' || filename[i] == '|')
-					filename[i] = '_';
-			}
-		clear();
-		
-		switch (checkName(filename)) {		// 0 == good name // 1 == too long // 2 == no name
-		case 0:
-			path = "save/";
-			path.append(filename.c_str());
-			m_filename = filename;
-			outFile.open(path);				// creates file with name filename
-			outFile << p_name << endl;		// outFile LINE 01
-			break;
-		case 1:
-			printw(" Maybe something shorter? (16 char limit)\n");
-			nameTripwire = true;
-			refresh();
-			break;
-		case 2:
-			printw(" Surely you must have a name.\n");
-			nameTripwire = true;
-			refresh();
-			break;
-		}
-	}
-	clear();
-
-	//
-	//TODO: completely random character? if yes return all stats printed
-	//
-
-	printw(" Tell me a bit about yourself.\n Are you: ");
-	mvprintw(8, 1, "USE W & S TO TOGGLE MENUS, R FOR RANDOM VALUE, ENTER TO SELECT"); // TODO: move toward WASD formatting
+	//nameT.. == 0 if false, 1 if true
+	mvprintw(nameTripwire, 0, " What is your name? : ");
+	refresh();
+	getnstr(p_name, sizeof(p_name) - 1);
 	
-	//
-	// TODO: randomize gender? CLEANUP
-	//
-
-	std::vector<std::string> gender_vec; 
-	gender_vec.push_back("MASCULINE");
-	gender_vec.push_back("FEMININE");
-
-	ScrollMenu gender(stdscr, gender_vec, 3, 3);
-	switch (gender.select(true))			//outFile LINE 02
-	{
+	filename = p_name;
+	size_t s = filename.size();
+	for (size_t i = 0; i < s; i++)
+	    {	//illegal characters in filename replaced with '_'
+	        if (filename[i] == '\\' || filename[i] == '/' || filename[i] == ':'
+		    || filename[i] == '*' || filename[i] == '?' || filename[i] == '"'
+		    || filename[i] == '<' || filename[i] == '>' || filename[i] == '|')
+		  filename[i] = '_';
+	    }
+	clear();
+	
+	switch (checkName(filename)) {
+	  // 0 == good name // 1 == too long // 2 == no name
 	case 0:
-		if (!outFile.bad())
-		outFile << MASCULINE << endl;
-		break;
+	    path = "save/";
+	    path.append(filename.c_str());
+	    m_filename = filename;
+	    outFile.open(path);				// creates file with name filename
+	    outFile << p_name << endl;		// outFile LINE 01
+	    break;
 	case 1:
-		if (!outFile.bad())
-		outFile << FEMININE << endl;
-		break;
+	    printw(" Maybe something shorter? (16 char limit)\n");
+	    nameTripwire = true;
+	    refresh();
+	    break;
+	case 2:
+	    printw(" Surely you must have a name.\n");
+	    nameTripwire = true;
+	    refresh();
+	    break;
+	}
+    }
+    curs_set(0);
+    noecho();
+    clear();
+     
+    //
+    //TODO: completely random character? if yes return all stats printed
+    //
+    
+    printw(" Tell me a bit about yourself.\n Are you: ");
+    mvprintw(8, 1, "USE W & S TO TOGGLE MENUS, R FOR RANDOM VALUE, ENTER TO SELECT");
+    // TODO: move toward WASD formatting
+	
+    std::vector<std::string> gender_vec; 
+    gender_vec.push_back("MASCULINE");
+    gender_vec.push_back("FEMININE");
+    
+    ScrollMenu gender(stdscr, gender_vec, 3, 3);
+    switch (gender.select(true))			//outFile LINE 02
+        {
+	case 0:
+	    if (!outFile.bad())
+	        outFile << MASCULINE << endl;
+	    break;
+	case 1:
+	    if (!outFile.bad())
+	        outFile << FEMININE << endl;
+	    break;
 	}
 	
-	//	gender.~ScrollMenu();
-	clear();
-	refresh();
+    clear();
+    refresh();
 
-	printw(" How tall are you? \n");
-	mvprintw(8, 1, "USE W/S TO TOGGLE UP/DOWN, R FOR RANDOM VALUE, ENTER TO SELECT");
+    printw(" How tall are you? \n");
+    mvprintw(8, 1, "USE W/S TO TOGGLE UP/DOWN, R FOR RANDOM VALUE, ENTER TO SELECT");
+    
+    SliderMenu height(stdscr, "HEIGHT (cm)", 220, 140, 180, 1, 3, 3);
+    int p_height = height.select(true);
+    if (!outFile.bad())
+        outFile << (p_height) << endl;		//outFile LINE 03
+    
+    height.~SliderMenu();
+    clear();
+    refresh();
+    
+    printw(" What do you weigh? \n");
+    mvprintw(8, 1, "USE W/S TO TOGGLE UP/DOWN, R FOR RANDOM VALUE, ENTER TO SELECT");
+    
+    SliderMenu weight(stdscr, "WEIGHT (kg)", 200, 30, 70, 1, 3, 3);
+    int p_weight = weight.select(true);
+    if (!outFile.bad()) {
+		outFile << (p_weight) << endl;
+    } //outFile LINE 03
+    weight.~SliderMenu();
+    clear();
+    refresh();
+    
+    m_Player = new Player(p_weight, p_height, 1, p_name, this);
+    std::vector<Attribute> statset;
+    // TODO: this is bad form; generatestats
+    // should not take control of the window. 
+    generatestats(stdscr, 3, 3, statset);
+    m_Player->fillstats(statset);
+    
+    m_Player->setHealth(statset[(int)(attributes::CONSTITUTION)].getBase());
+    m_Player->setHealthMax(statset[(int)(attributes::CONSTITUTION)].getBase());
+    
+    m_Player->setMana(statset[(int)(attributes::WISDOM)].getBase());
+    m_Player->setManaMax(statset[(int)(attributes::WISDOM)].getBase());
+    
+    std::vector<int> stats;
+    m_Player->getstats(stats);
 
-	SliderMenu height(stdscr, "HEIGHT (cm)", 220, 140, 180, 1, 3, 3);
-	int p_height = height.select(true);
-	if (!outFile.bad())
-		outFile << (p_height) << endl;		//outFile LINE 03
-
-	height.~SliderMenu();
-	clear();
-	refresh();
-
-	printw(" What do you weigh? \n");
-	mvprintw(8, 1, "USE W/S TO TOGGLE UP/DOWN, R FOR RANDOM VALUE, ENTER TO SELECT");
-
-	SliderMenu weight(stdscr, "WEIGHT (kg)", 200, 30, 70, 1, 3, 3);
-	int p_weight = weight.select(true);
-	if (!outFile.bad())
-		outFile << (p_weight) << endl;		//outFile LINE 03
-	weight.~SliderMenu();
-	clear();
-	refresh();
-	
-	m_Player = new Player(p_weight, p_height, 1, p_name, this);
-	std::vector<Attribute> statset;
-	// TODO: this is bad form; generatestats
-	// should not take control of the window. 
-	generatestats(stdscr, 3, 3, statset);
-	m_Player->fillstats(statset);
-
-	m_Player->setHealth(statset[(int)(attributes::CONSTITUTION)].getBase());
-	m_Player->setHealthMax(statset[(int)(attributes::CONSTITUTION)].getBase());
-
-	m_Player->setMana(statset[(int)(attributes::WISDOM)].getBase());
-	m_Player->setManaMax(statset[(int)(attributes::WISDOM)].getBase());
-	
-	std::vector<int> stats;
-	m_Player->getstats(stats);
-
-	if (!outFile.bad())
-	{
-		for (std::vector<int>::iterator it = stats.begin(); it != stats.end(); it++)
-		{	
-			outFile << to_string(*it).c_str() << endl;
-			//lines 4-10 are for stat attributes, in the standard order.
-		}
+    if (!outFile.bad()) {
+        for (std::vector<int>::iterator it = stats.begin(); it != stats.end(); it++) {	
+	    outFile << to_string(*it).c_str() << endl;
+	    //lines 4-10 are for stat attributes, in the standard order.
 	}
-	outFile.close();
-
-	endwin();
-	return;
+    }
+    outFile.close();
+    
+    return;
 }
 
 void Game::generatestats(WINDOW* parent, int x_offset, int y_offset, std::vector<Attribute> &statset)

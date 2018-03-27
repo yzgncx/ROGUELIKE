@@ -79,6 +79,13 @@ void Actor::modHealth(int n) { m_health += n; }
 
 void Actor::performAction() { return; }
 
+/*PLAYER INTERACTIONS*/
+std::string Actor::examine()
+{
+  return "Doesn't look like anything to me.";
+}
+
+
 //==================================//
 //		DYNAMICS FUNCTIONS	    	//
 //==================================//

@@ -2,6 +2,13 @@
 #include "GameWindow.h"
 #include <algorithm>
 
+
+/*
+ *
+ *  ADVENTURE WINDOW METHODS
+ *
+ *
+ */
 AdventureWindow::AdventureWindow(Game* g) : m_Game(g)
 {	
     m_Map = new Map(g);
@@ -10,20 +17,23 @@ AdventureWindow::AdventureWindow(Game* g) : m_Game(g)
     std::ifstream save;
     std::string path = "save/worldmap_test";
     save.open(path);
-  
-    initscr();
-  
+
     m_display = newwin(0, 0, 0, 0);
     getmaxyx(m_display, m_max_y, m_max_x);
     m_max_y -= 7; //for HUD subwin
-    m_HUD = subwin(m_display, 5, m_max_x, m_max_y, 0);
 
+    m_HUD = subwin(m_display, 7, m_max_x, m_max_y, 0);
     whline(m_HUD, 0, m_max_x);
+
+    m_MSG = subwin(m_HUD, 7, m_max_x - 45, m_max_y, 45);
+    box(m_MSG,0,0);
+      
     updateDisplay();
 	
     touchwin(m_display);
     refresh();
     wrefresh(m_HUD);
+    wrefresh(m_MSG);
 }
 
 
@@ -34,7 +44,6 @@ AdventureWindow::~AdventureWindow()
 
 void AdventureWindow::runWindow()
 {
-  noecho();
   keypad(m_display, TRUE);
   while (true) {
     noecho();
@@ -68,7 +77,8 @@ void AdventureWindow::updateDisplay()
     }
   }
   
-  //print actor elements of the map 
+  // print actor elements of the map
+  // entities within range of player are printed in bold.
   for(go_mmap::iterator it = m_Map->m_go.begin(); it != m_Map->m_go.end(); it++) {
     for(go_mmap::set_iterator s_it = m_Map->m_go.set_begin(it);
 	s_it != m_Map->m_go.set_end(it); s_it++) {
@@ -77,13 +87,15 @@ void AdventureWindow::updateDisplay()
       o_x -= x_offset;
       o_y -= y_offset;
       if (o_x >= 0 && o_x < m_max_x && o_y >= 0 && o_y < m_max_y) {
-	if (std::find(m_interactable.begin(), m_interactable.end(), (*s_it)) != m_interactable.end()) {
+	if (std::find(m_interactable.begin(), m_interactable.end(), (*s_it))
+	    != m_interactable.end()) {
 	  attron(A_BOLD);
 	}
 	attron((*s_it)->getAttributes());
 	mvprintw(o_y, o_x, "%c", (*s_it)->getAvatar());
 	attroff((*s_it)->getAttributes());
-	if (std::find(m_interactable.begin(), m_interactable.end(), (*s_it)) != m_interactable.end()) {
+	if (std::find(m_interactable.begin(), m_interactable.end(), (*s_it))
+	    != m_interactable.end()) {
 	  attroff(A_BOLD);
 	}
       }
@@ -97,7 +109,7 @@ void AdventureWindow::updateDisplay()
     player_blurb += ", " + m_Player->gettitle();
   }
   player_blurb += " (level " + std::to_string(m_Player->getlevel()) + ")";
-  mvwprintw(m_HUD, 1, (m_max_x / 2) - (player_blurb.length() / 2), player_blurb.c_str());
+  //mvwprintw(m_HUD, 1, (m_max_x / 2) - (player_blurb.length() / 2), player_blurb.c_str());
   
   
   //HUD health bar
@@ -154,9 +166,15 @@ void AdventureWindow::updateDisplay()
   wattroff(m_HUD, COLOR_PAIR(4));
   
   mvwprintw(m_HUD, 4, 1, "MANA  ");
+
+  //messages
+  for(int i = m_messages.size() - 1, j = 1; i >= 0 && j < 6; i--) {
+    mvwprintw(m_MSG, j, 1, m_messages[i].c_str());
+    j++;
+  }
   //================
 
-
+  
   //print player's avatar.  this might be
   //replaced with a function call at some point
   init_pair(5, COLOR_RED, COLOR_BLACK);
@@ -165,10 +183,9 @@ void AdventureWindow::updateDisplay()
   attroff(COLOR_PAIR(5));
   
   
-  wrefresh(m_HUD);
   touchwin(m_display);
   refresh();
-
+  wrefresh(m_HUD);
 }
 
 
@@ -288,32 +305,46 @@ void AdventureWindow::handleInput(char c)
   //wasd cases (player turns face, then moves)  
   case 'w':
     m_Player->setFacing(directions::N);
-    if (!canMove('w')) {
+    if (!canMove(directions::N)) {
       return;
     }
     n_y -= 1;
     break;
   case 'a':
     m_Player->setFacing(directions::W);
-    if (!canMove('a')) {
+    if (!canMove(directions::W)) {
       return;
     }
     n_x -= 2;
     break;
   case 's':
     m_Player->setFacing(directions::S);
-    if (!canMove('s')) {
+    if (!canMove(directions::S)) {
       return;
     }
     n_y += 1;
     break;
   case 'd':
     m_Player->setFacing(directions::E);
-    if (!canMove('d')) {
+    if (!canMove(directions::E)) {
       return;
     }
     n_x += 2;
     break;
+
+  // open InteractionSubwin 
+  case ' ': {
+    // DUMMY CODE
+    std::vector<std::pair<std::string, std::string>> options_vec;
+    options_vec.push_back(std::pair<std::string,std::string>("examine", "dummy"));
+    PairScrollMenu selector(stdscr, options_vec, 15,55);
+    switch(selector.select()) {
+    case 0:
+      m_messages.push_back("Doesn't look like anything to me.");
+      break;
+    }
+    break;
+  }
   }
   m_Player->setXY(n_x, n_y);
 }
@@ -337,33 +368,31 @@ void AdventureWindow::updateEntities()
 //  CHECK WHETHER PLAYER CAN MOVE IN A GIVEN DIRECTION
 //======================================================
 //
-// TODO: update to use directions instead of chars
-//
-bool AdventureWindow::canMove(char c)
+bool AdventureWindow::canMove(directions d)
 {
   short p_x, p_y, n_x1, n_x2, n_y;
   m_Map->getpXY(p_x, p_y);
   n_x1 = n_x2 = p_x;
   n_y = p_y;
   
-  switch(c) {
-  case 'w':
+  switch(d) {
+  case directions::N:
     n_y -= 1;
     break;
-  case 'a':
+  case directions::W:
     n_x1 -= 1; n_x2 -= 2;
     break;
-  case 's':
+  case directions::S:
     n_y += 1;
     break;
-  case 'd':
+  case directions::E:
     n_x1 += 1; n_x2 += 2;
     break;
   }
 
-  switch(c) {
-  case 'a':
-  case 'd':
+  switch(d) {
+  case directions::W:
+  case directions::E:
     {
     go_mmap::iterator it2 = m_Map->m_go.find_set(std::pair<short,short>(n_x2,n_y));
     if(it2 != m_Map->m_go.end()) {
@@ -375,8 +404,8 @@ bool AdventureWindow::canMove(char c)
       }
     }
     }
-  case 'w':
-  case 's':
+  case directions::N:
+  case directions::S:
     {
     go_mmap::iterator it = m_Map->m_go.find_set(std::pair<short,short>(n_x1,n_y));
     if(it != m_Map->m_go.end()) {
@@ -396,4 +425,17 @@ bool AdventureWindow::canMove(char c)
   }
 
   return true;
+}
+
+
+/*
+ *
+ * INTERACTION SUBWIN METHODS
+ *
+ *
+ */
+
+InteractionSubwin::InteractionSubwin(AdventureWindow* aw, WINDOW* p) : m_parent(p)
+{
+  
 }

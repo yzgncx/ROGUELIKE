@@ -55,7 +55,11 @@ public:
 	void setHealthMax(int n);	
 
 	virtual void performAction();
-private:
+
+	/*PLAYER INTERACTIONS*/
+	virtual std::string examine();
+	
+ private:
 	bool m_alive;
 	int m_natural_armor;
 

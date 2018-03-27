@@ -34,12 +34,13 @@ private:
 /*
 *
 *  SCROLL MENU
-*
+*   
 */
 class ScrollMenu
 {
 public:
-	ScrollMenu(WINDOW* parent, std::vector<std::string> choices, int x_offset, int y_offset);
+	ScrollMenu(WINDOW* parent, std::vector<std::string> choices,
+		   int x_offset, int y_offset);
 	~ScrollMenu();
 	virtual int select() const;
 	virtual int select(bool rand) const;
@@ -50,6 +51,27 @@ private:
 	WINDOW* m_Menu;
 };
 
+/*
+*
+*  PAIR SCROLL MENU
+*      Displays a pair-list of options, with first element of pair emboldened. 
+*
+*/
+class PairScrollMenu
+{
+public:
+        PairScrollMenu(WINDOW* parent,
+	       std::vector<std::pair<std::string, std::string>> choices,
+	       int x_offset, int y_offset);
+	~PairScrollMenu();
+	virtual int select() const;
+	virtual int select(bool rand) const;
+
+private:
+	std::vector<std::pair<std::string, std::string>> m_choices;
+	int m_size;
+	WINDOW* m_Menu;
+};
 
 /*
 *
@@ -86,8 +108,6 @@ public:
 	};
 
 private:
-
-
 	WINDOW* m_Menu;
 	std::vector<int>* m_result;
 	std::string m_setA_header;

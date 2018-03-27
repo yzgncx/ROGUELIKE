@@ -1,23 +1,24 @@
 #include <ncursesw/curses.h>
-#include <ncurses.h>
-#include "Game.h"
-#include "GameWindow.h"
-
-#include "Menu.h"
 #include <string>
 #include <vector>
 #include <ctime>
 #include <cstdlib>
+
+#include "Game.h"
+#include "GameWindow.h"
+#include "Menu.h"
 #include "Stats.h"
 
-int main()
+int main(void)
 {
-        setlocale(LC_CTYPE, "");
-  
-	int y, x;
+        setlocale(LC_ALL, "");
 	initscr();
+	cbreak();
+	noecho();
 	start_color();
-	curs_set(0);
+       	curs_set(0);
+
+	int y, x;
 	getmaxyx(stdscr, y, x);
 	std::srand((unsigned int)time(NULL));
 
@@ -26,31 +27,7 @@ int main()
 
 	AdventureWindow a(&g);
 	a.runWindow();
-
-	/*
-	std::vector<std::string> setA;
-	std::vector<std::string> setB;
-	std::vector<int> result;
-	setA.push_back("16"); setA.push_back("12"); setA.push_back("08"); setA.push_back("17"); setA.push_back("09"); setA.push_back("14");
-	setB.push_back("STR"); setB.push_back("CON"); setB.push_back("DEX"); setB.push_back("INT"); setB.push_back("WIS"); setB.push_back("CHA");
 	
-	A2BMenu m(stdscr, setA, "ROLLS", setB, "STATS", result, 2, 2);
-	int i = m.select();
-	m.~A2BMenu();
-	clear();
-	refresh();
-	*/
-/*
-	initscr();
-	start_color();
-	init_pair(1, COLOR_CYAN, COLOR_BLACK);
-	attron(COLOR_PAIR(1));
-	printw("test");
-
-	refresh();
-*/
-	/*
-	Map m;
-	return 0;
-	*/
+	endwin();
+        return 0;
 }

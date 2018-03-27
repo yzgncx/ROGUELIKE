@@ -227,6 +227,166 @@ int ScrollMenu::select(bool rand) const
 
 
 /*
+ *
+ * PAIR SCROLL MENU
+ *
+ *
+ */
+PairScrollMenu::PairScrollMenu(WINDOW* parent,
+			       std::vector<std::pair<std::string, std::string>> choices,
+			       int x_offset, int y_offset)
+    : m_size(choices.size())
+{
+    int longest = 0;
+    for (std::vector<std::pair<std::string,std::string>>::iterator it = choices.begin();
+	 it != choices.end(); it++) {
+	    m_choices.push_back(*it);
+	    int it_size = it->first.size() + it->second.size();
+	    if (it_size > static_cast<size_t>(longest)) {
+	        longest = it_size;
+	    }
+	}
+    m_Menu = subwin(parent, choices.size() + 2, longest + 7, x_offset, y_offset);
+    box(m_Menu, 0, 0);
+    
+    for (int i = 0; static_cast<size_t>(i) < m_choices.size(); i++) {
+        wmove(m_Menu, i + 1, 2);
+	if (i == 0) {
+	  wprintw(m_Menu, "> ");
+	}
+	else {
+	  wprintw(m_Menu, "  ");
+	}
+	wattron(m_Menu, A_BOLD);
+	wprintw(m_Menu, (m_choices[i].first + " ").c_str());
+	wattroff(m_Menu, A_BOLD);
+	mvwprintw(m_Menu, i + 1, m_choices[i].first.size() + 5,
+		  (m_choices[i].second).c_str());
+    }
+    wrefresh(m_Menu);
+}
+
+PairScrollMenu::~PairScrollMenu()
+{
+    delwin(this->m_Menu);
+}
+
+int PairScrollMenu::select() const
+{
+  int ch, counter = 10000002;
+  noecho();
+  keypad(m_Menu, TRUE);
+  while ((ch = getch()) != KEY_ENTER && ch != 10) {
+      switch (ch)
+          {
+	  case 'W':
+	  case 'w':
+	      counter--;
+	      break;
+	  case 'S':
+	  case 's':
+	      counter++;
+	      break;
+	  }
+      int selected = (abs(counter % m_size));
+      wclear(m_Menu);
+      box(m_Menu, 0, 0);
+      for (int i = 0; i < m_size; i++) {
+	  wmove(m_Menu, i + 1, 2);
+	  if (i == selected) {
+	      wprintw(m_Menu, "> ");
+	  }
+	  else {
+	      wprintw(m_Menu, "  ");
+	  }
+	  wattron(m_Menu, A_BOLD);
+	  wprintw(m_Menu, (m_choices[i].first + " ").c_str());
+	  wattroff(m_Menu, A_BOLD);
+	  mvwprintw(m_Menu, i + 1, m_choices[i].first.size() + 5,
+		    (m_choices[i].second).c_str());
+      }
+      wrefresh(m_Menu);
+      fflush(stdin);
+  }
+  wclear(m_Menu);
+  wrefresh(m_Menu);
+  return  (abs(counter % m_size));
+}
+
+int PairScrollMenu::select(bool rand) const
+{
+    if (!rand) return PairScrollMenu::select();
+    
+    int ch, counter = 0;
+    noecho();
+    keypad(m_Menu, TRUE);
+    while ((ch = getch()) != KEY_ENTER && ch != 10) {
+        switch (ch) {
+	case 'W':
+	case 'w':
+	    counter--;
+	    break;
+	case 'S':
+	case 's':
+	    counter++;
+	    break;
+	case 'R':
+	case 'r':
+	    int i = 0;
+	    while (i < 10) {
+	        if (i < 5)
+		    sleep_for(milliseconds(50));
+		else if (i < 8)
+		    sleep_for(milliseconds(100));
+		else
+		    sleep_for(milliseconds(200));
+		i++;
+		counter = Rand();
+		int selected = (abs(counter % m_size));
+		wclear(m_Menu);
+		box(m_Menu, 0, 0);
+		for (int i = 0; i < m_size; i++) {
+		    wmove(m_Menu, i + 1, 2);
+		    if (i == selected) {
+		        wprintw(m_Menu, "> ");
+		    }
+		    else {
+		        wprintw(m_Menu, "  ");
+		    }
+		    wattron(m_Menu, A_BOLD);
+		    wprintw(m_Menu, (m_choices[i].first + " ").c_str());
+		    wattroff(m_Menu, A_BOLD);
+		    mvwprintw(m_Menu, i + 1, m_choices[i].first.size() + 5,
+			      (m_choices[i].second).c_str());
+		    }
+		wrefresh(m_Menu);
+	    }
+	}
+	int selected = (abs(counter % m_size));
+	wclear(m_Menu);
+	box(m_Menu, 0, 0);
+	for (int i = 0; i < m_size; i++) {
+	    if(i == selected) {
+	        wprintw(m_Menu, "> ");
+	    }
+	    else {
+	        wprintw(m_Menu, "  ");
+	    }
+	    wmove(m_Menu, i + 1, 2);
+	    wattron(m_Menu, A_BOLD);
+	    wprintw(m_Menu, (m_choices[i].first + " ").c_str());
+	    wattroff(m_Menu, A_BOLD);
+	    wmove(m_Menu, i + 1, m_choices[i].first.size() + 3);
+	    wprintw(m_Menu, (m_choices[i].second).c_str());
+	}
+	wrefresh(m_Menu);
+    }
+    return (abs(counter % m_size));
+}
+
+
+
+/*
 *
 *
 *  A2B MENU
