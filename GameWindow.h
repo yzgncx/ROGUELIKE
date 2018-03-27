@@ -18,6 +18,7 @@ public:
 
 	void runWindow();
 	void updateDisplay();
+	void updateInteractable();
 	void handleInput(char c);
 	void updateEntities();
 	bool canMove(char c);
@@ -28,7 +29,9 @@ private:
 	Game* m_Game;
 	Map* m_Map;
 	Player* m_Player;
+	std::vector<Actor*> m_interactable;
 
+	
 	int m_max_x;
 	int m_max_y;
 };

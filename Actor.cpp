@@ -1,4 +1,5 @@
 #include "Actor.h"
+#include "GameWindow.h"
 
 //==================================//
 //		GRAPHOBJECT FUNCTIONS		//
@@ -123,7 +124,8 @@ void Dynamics::setFacing(directions d) { m_facing = d; }
 //==================================//
 Player::Player(unsigned short weight, unsigned short height,
 	       unsigned short level, int health, int mana,
-	       std::string name, Game* g, short sub, unsigned short x, unsigned short y)
+	       std::string name, Game* g, short sub,
+	       unsigned short x, unsigned short y)
   : Dynamics(PLAYER, sub, x, y, g, health, 10, 0)
 {
         m_level = level;
@@ -132,7 +134,8 @@ Player::Player(unsigned short weight, unsigned short height,
 	m_name = name;
 }
 
-Player::Player(unsigned short wt, unsigned short ht, unsigned short lv, std::string n, Game* g) : Dynamics(PLAYER, 0, OOB, OOB, g) 
+Player::Player(unsigned short wt, unsigned short ht, unsigned short lv,
+	       std::string n, Game* g) : Dynamics(PLAYER, 0, OOB, OOB, g) 
 {
         m_level = lv;
 	m_weight = wt;
@@ -179,8 +182,6 @@ void Player::setweight(int weight) { m_weight = weight; }
 
 int Player::getweight() const { return m_weight; }
 
-//std::vector<Actor*> Player::getInteractable() const { return m_interactable; }
-
 
 //==================================//
 //  	     MOB FUNCTIONS          //
@@ -212,7 +213,7 @@ Statics::Statics(short type, short sub, short x, short y, Game* g, int h, int a)
 //		 TERRAIN FUNCTIONS	    	//
 //==================================//
 
-Terrain::Terrain(short sub, short x, short y, Game* g, int h, int a) : Statics(TERRAIN,sub,x,y,g,h,a)
+Terrain::Terrain(short sub, short x, short y,  Game* g, int h, int a) : Statics(TERRAIN,sub,x,y, g,h,a)
 {
   switch (sub) {
     case 0: //temporary

@@ -1,5 +1,6 @@
 #include "globals.h"
 #include "GameWindow.h"
+#include <algorithm>
 
 AdventureWindow::AdventureWindow(Game* g) : m_Game(g)
 {	
@@ -38,9 +39,10 @@ void AdventureWindow::runWindow()
   while (true) {
     noecho();
     keypad(m_display, TRUE);
-        
+
     handleInput(getch());
     updateEntities();
+    updateInteractable();
     updateDisplay();
   }
 }
@@ -49,7 +51,6 @@ void AdventureWindow::updateDisplay()
 {
   short p_x, p_y;
   int ch;
-  curs_set(1);
 
   m_Player->getXY(p_x, p_y);
   int y_offset = p_y - (m_max_y / 2), x_offset = p_x - (m_max_x / 2);
@@ -76,16 +77,21 @@ void AdventureWindow::updateDisplay()
       o_x -= x_offset;
       o_y -= y_offset;
       if (o_x >= 0 && o_x < m_max_x && o_y >= 0 && o_y < m_max_y) {
+	if (std::find(m_interactable.begin(), m_interactable.end(), (*s_it)) != m_interactable.end()) {
+	  attron(A_BOLD);
+	}
 	attron((*s_it)->getAttributes());
 	mvprintw(o_y, o_x, "%c", (*s_it)->getAvatar());
 	attroff((*s_it)->getAttributes());
+	if (std::find(m_interactable.begin(), m_interactable.end(), (*s_it)) != m_interactable.end()) {
+	  attroff(A_BOLD);
+	}
       }
     }
   }
     
   //===================
   //update HUD elements
-  //
   std::string player_blurb = m_Player->getname();
   if(m_Player->gettitle() != "") {
     player_blurb += ", " + m_Player->gettitle();
@@ -148,7 +154,6 @@ void AdventureWindow::updateDisplay()
   wattroff(m_HUD, COLOR_PAIR(4));
   
   mvwprintw(m_HUD, 4, 1, "MANA  ");
-  //
   //================
 
 
@@ -159,41 +164,6 @@ void AdventureWindow::updateDisplay()
   mvprintw(m_max_y / 2, m_max_x / 2, "@");
   attroff(COLOR_PAIR(5));
   
-  // set A_BOLD for whatever the player is facing
-  char unmasked;
-  char attrs;
-  curs_set(0);
-  switch(m_Player->getFacing())
-  {
-  case directions::N:
-    attrs = A_ATTRIBUTES & mvinch((m_max_y / 2) - 1, m_max_x / 2);
-    unmasked = A_CHARTEXT & mvinch((m_max_y / 2) - 1, m_max_x / 2);
-    attron(A_BOLD | attrs);
-    mvaddch((m_max_y / 2) - 1, m_max_x / 2, unmasked);
-    attroff(A_BOLD);
-    break;
-  case directions::W:
-    attrs = A_ATTRIBUTES & mvinch(m_max_y / 2, (m_max_x / 2) - 2);
-    unmasked = A_CHARTEXT & mvinch(m_max_y / 2, (m_max_x / 2) - 2);
-    attron(A_BOLD | attrs);
-    mvaddch(m_max_y / 2, (m_max_x / 2) - 2, unmasked);
-    attroff(A_BOLD);
-    break;
-  case directions::S:
-    attrs = A_ATTRIBUTES & mvinch((m_max_y / 2) + 1, m_max_x / 2);
-    unmasked = A_CHARTEXT & mvinch((m_max_y / 2) + 1, m_max_x / 2);
-    attron(A_BOLD | attrs);
-    mvaddch((m_max_y / 2) + 1, m_max_x / 2, unmasked);
-    attroff(A_BOLD);
-    break;
-  case directions::E:
-    attrs = A_ATTRIBUTES & mvinch(m_max_y / 2, (m_max_x / 2) + 2);
-    unmasked = A_CHARTEXT & mvinch(m_max_y / 2, (m_max_x / 2) + 2);
-    attron(A_BOLD | attrs);
-    mvaddch(m_max_y / 2, (m_max_x / 2) + 2, unmasked);
-    attroff(A_BOLD);
-    break;
-  }
   
   wrefresh(m_HUD);
   touchwin(m_display);
@@ -201,6 +171,97 @@ void AdventureWindow::updateDisplay()
 
 }
 
+
+//=======================================
+//  UPDATE INTERACTABLE ENTITIES VECTOR
+//=======================================
+//
+// This function takes into account the 'double-step' problem of W/E-ward
+// player movements.
+// Which entities are reachable is dependent on the direction the player is facing.
+// In all four cases, all entities one step away are interactable.  In the case of
+// W/E facing player, the entities two steps away are reachable i.f.f. there are no
+// impenetrable objects one step away.
+// 
+void AdventureWindow::updateInteractable()
+{
+  short p_x, p_y;
+  m_Map->getpXY(p_x,p_y);
+  go_mmap::iterator it; 
+  go_mmap::set_iterator s_it;
+  bool impenetrable_entity = false;
+  
+  m_interactable.clear();
+
+  switch (m_Player->getFacing())
+  {
+  case directions::N:
+    it = m_Map->m_go.find_set(std::pair<short,short>(p_x, p_y-1));
+    if (it != m_Map->m_go.end()) {
+      for (s_it = m_Map->m_go.set_begin(it); s_it != m_Map->m_go.set_end(it);s_it++) {
+	m_interactable.push_back(*s_it);      
+      }
+    }
+    break;
+    
+  case directions::W:
+    it = m_Map->m_go.find_set(std::pair<short,short>(p_x-1, p_y));
+    if (it != m_Map->m_go.end()) {
+      for (s_it = m_Map->m_go.set_begin(it); s_it != m_Map->m_go.set_end(it); s_it++) {
+	m_interactable.push_back(*s_it);
+	impenetrable_entity = (*s_it)->isPenetrable() | impenetrable_entity;
+      }
+    }
+    if(impenetrable_entity) {
+      break;
+    }
+    else {
+      it = m_Map->m_go.find_set(std::pair<short,short>(p_x-2, p_y));
+      if (it != m_Map->m_go.end()) {
+	for (s_it = m_Map->m_go.set_begin(it); s_it != m_Map->m_go.set_end(it); s_it++) {
+	  m_interactable.push_back(*s_it);
+	}
+      }
+    }
+    break;
+    
+  case directions::S:
+    it = m_Map->m_go.find_set(std::pair<short,short>(p_x, p_y+1));
+    if (it != m_Map->m_go.end()) {
+      for (s_it = m_Map->m_go.set_begin(it); s_it != m_Map->m_go.set_end(it); s_it++) {
+	m_interactable.push_back(*s_it);
+      }
+    }
+    break;
+    
+  case directions::E:
+    it = m_Map->m_go.find_set(std::pair<short,short>(p_x+1, p_y));
+    if (it != m_Map->m_go.end()) {
+      for (s_it = m_Map->m_go.set_begin(it); s_it != m_Map->m_go.set_end(it); s_it++) {
+	m_interactable.push_back(*s_it);
+	impenetrable_entity = (*s_it)->isPenetrable() | impenetrable_entity;
+      }
+    }
+    if(impenetrable_entity) {
+      break;
+    }
+    else {
+      it = m_Map->m_go.find_set(std::pair<short,short>(p_x+2, p_y));
+      if (it != m_Map->m_go.end()) {
+	for (s_it = m_Map->m_go.set_begin(it); s_it != m_Map->m_go.set_end(it); s_it++) {
+	  m_interactable.push_back(*s_it);
+	}
+      }
+    }
+    break; 
+  }  
+}
+
+//====================
+//    HANDLE INPUT
+//====================
+//
+//
 void AdventureWindow::handleInput(char c)
 {
   short p_x, p_y, n_x, n_y;
@@ -223,7 +284,6 @@ void AdventureWindow::handleInput(char c)
   case 'D':
     m_Player->setFacing(directions::E);
     break;
-   
   
   //wasd cases (player turns face, then moves)  
   case 'w':
@@ -258,7 +318,10 @@ void AdventureWindow::handleInput(char c)
   m_Player->setXY(n_x, n_y);
 }
 
-
+//========================
+//  UPDATE ALL ENTITIES
+//========================
+//
 void AdventureWindow::updateEntities()
 {
   for(go_mmap::iterator it = m_Map->m_go.begin(); it != m_Map->m_go.end(); it++) {
@@ -270,6 +333,12 @@ void AdventureWindow::updateEntities()
   }
 }
 
+//======================================================
+//  CHECK WHETHER PLAYER CAN MOVE IN A GIVEN DIRECTION
+//======================================================
+//
+// TODO: update to use directions instead of chars
+//
 bool AdventureWindow::canMove(char c)
 {
   short p_x, p_y, n_x1, n_x2, n_y;

@@ -2,6 +2,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <algorithm>
 #include <ctime>
 #include <cstdlib>
 #include <string>

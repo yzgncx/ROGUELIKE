@@ -66,7 +66,8 @@ private:
 class Dynamics : public Actor
 {
 public:
-  Dynamics(short type, short sub, short x, short y, Game* g, int h = 1, int m = 0, int a = 0);
+  Dynamics(short type, short sub, short x, short y, Game* g,
+	   int h = 1, int m = 0, int a = 0);
 	virtual void performaction();
 	int fillstats(std::vector<Attribute> statset);
 	void getstats(std::vector<int> &v);
@@ -92,8 +93,10 @@ class Player : public Dynamics
 public:
         Player(unsigned short weight, unsigned short height,
 	       unsigned short level, int health, int mana,
-	       std::string name, Game* g, short sub, unsigned short x, unsigned short y);
-	Player(unsigned short wt, unsigned short ht, unsigned short lv, std::string n, Game* g);
+	       std::string name, Game* g, short sub,
+	       unsigned short x, unsigned short y);
+	Player(unsigned short wt, unsigned short ht, unsigned short lv,
+	       std::string n, Game* g);
 	Player(Player &rhs);
 	~Player();
 
@@ -111,8 +114,6 @@ public:
 	void setweight(int weight);
 	int getweight() const;
 
-	//std::vector<Actor*> getInteractable() const;
-
 private:
 	std::string m_name;
 	std::string m_title;
@@ -121,8 +122,6 @@ private:
 	unsigned short m_weight;
 
 	unsigned short m_level;
-
-	std::vector<Actor*> m_interactable;
 };
 
 class Mob : public Dynamics
