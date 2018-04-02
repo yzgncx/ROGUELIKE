@@ -168,10 +168,13 @@ void AdventureWindow::updateDisplay()
   mvwprintw(m_HUD, 4, 1, "MANA  ");
 
   //messages
+  wclear(m_MSG);
+  box(m_MSG,0,0);
   for(int i = m_messages.size() - 1, j = 1; i >= 0 && j < 6; i--) {
     mvwprintw(m_MSG, j, 1, m_messages[i].c_str());
     j++;
   }
+  wrefresh(m_MSG);
   //================
 
   
@@ -226,13 +229,10 @@ void AdventureWindow::updateInteractable()
     if (it != m_Map->m_go.end()) {
       for (s_it = m_Map->m_go.set_begin(it); s_it != m_Map->m_go.set_end(it); s_it++) {
 	m_interactable.push_back(*s_it);
-	impenetrable_entity = (*s_it)->isPenetrable() | impenetrable_entity;
+	impenetrable_entity = !(*s_it)->isPenetrable() || impenetrable_entity;
       }
     }
-    if(impenetrable_entity) {
-      break;
-    }
-    else {
+    if(!impenetrable_entity) {
       it = m_Map->m_go.find_set(std::pair<short,short>(p_x-2, p_y));
       if (it != m_Map->m_go.end()) {
 	for (s_it = m_Map->m_go.set_begin(it); s_it != m_Map->m_go.set_end(it); s_it++) {
@@ -256,13 +256,10 @@ void AdventureWindow::updateInteractable()
     if (it != m_Map->m_go.end()) {
       for (s_it = m_Map->m_go.set_begin(it); s_it != m_Map->m_go.set_end(it); s_it++) {
 	m_interactable.push_back(*s_it);
-	impenetrable_entity = (*s_it)->isPenetrable() | impenetrable_entity;
+	impenetrable_entity = !(*s_it)->isPenetrable() || impenetrable_entity;
       }
     }
-    if(impenetrable_entity) {
-      break;
-    }
-    else {
+    if(!impenetrable_entity) {
       it = m_Map->m_go.find_set(std::pair<short,short>(p_x+2, p_y));
       if (it != m_Map->m_go.end()) {
 	for (s_it = m_Map->m_go.set_begin(it); s_it != m_Map->m_go.set_end(it); s_it++) {
@@ -271,7 +268,7 @@ void AdventureWindow::updateInteractable()
       }
     }
     break; 
-  }  
+  }
 }
 
 //====================
